@@ -16,7 +16,18 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <Banner buttonText='View stores nearby' handleOnClick={handleOnBannerButtonClick} />
+        <Banner
+          buttonText="View stores nearby"
+          handleOnClick={handleOnBannerButtonClick}
+        />
+        <div className={styles.heroImage}>
+          <Image
+            alt=""
+            src="/../public/static-assets/hero-image.png"
+            width={800}
+            height={343}
+          />
+        </div>
       </main>
     </>
   );
