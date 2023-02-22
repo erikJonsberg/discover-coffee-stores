@@ -1,7 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css';
-import Banner from '../components/banner/banner.component'
+import Banner from '../components/banner/banner.component';
+import Card from '../components/card/card.component';
 
 export default function Home() {
   const handleOnBannerButtonClick = () => {
@@ -23,10 +24,34 @@ export default function Home() {
         <div className={styles.heroImage}>
           <Image
             alt=""
-            src="/../public/static-assets/hero-image.png"
+            src="/static-assets/hero-image.png"
             width={800}
             height={343}
+            priority="true"
           />
+        </div>
+
+        <div>
+          <div className={styles.cardLayout}>
+            <Card
+              name="Cafe Nero"
+              imgUrl="/static-assets/hero-image.png"
+              href="/coffee-store/cafe-nero"
+              className={styles.card}
+            />
+            <Card
+              name="Cafe Nero"
+              imgUrl="/static-assets/hero-image.png"
+              href="/coffee-store/cafe-nero"
+              className={styles.card}
+            />
+            <Card
+              name="Cafe Nero"
+              imgUrl="/static-assets/hero-image.png"
+              href="/coffee-store/cafe-nero"
+              className={styles.card}
+            />
+          </div>
         </div>
       </main>
     </>
