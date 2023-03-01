@@ -15,6 +15,7 @@ html,
 body {
   width: 100vw;
   overflow-x: hidden;
+  margin-bottom: 3rem;
 }
 
 body {
@@ -23,7 +24,6 @@ body {
   background-repeat: no-repeat;
   background-position: 50%;
   background-size: cover;
-
 }
 
 a {

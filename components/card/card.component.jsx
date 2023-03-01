@@ -16,6 +16,7 @@ const Card = (props) => {
             src={props.imgUrl} 
             alt=""
             className={styles.cardImage}
+            priority
         />
         </div>
         </div>
