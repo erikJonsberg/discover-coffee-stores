@@ -89,7 +89,7 @@
   font-weight: 700;
 }
 
-.upvoteButton {
+.voteButton {
   width: fit-content;
   color: var(--text-white-100);
   margin-top: 1rem /* 16px */;
