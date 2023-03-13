@@ -1,4 +1,3 @@
-
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -8,10 +7,10 @@ import { fetchCoffeeStores } from "@/lib/coffee-stores.lib";
 import styles from "@/styles/coffee-store.module.css";
 import { StoreContext } from "@/store/store.context";
 import { isEmpty } from "@/utils/utils";
+import useSWR from "swr";
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
-  console.log('params', params)
 
   const coffeeStores = await fetchCoffeeStores();
   const findCoffeeStoreById = coffeeStores.find((coffeeStore) => 
@@ -42,9 +41,7 @@ export async function getStaticProps(staticProps) {
 
 const CoffeeStore = (initialProps) => {
     const router = useRouter()
-      // if (router.isFallback) {
-      //   return <div>Loading...</div>;
-      // }
+    {router.isFallback && <div>Loading...</div>};
 
     const id = router.query.id;
 
@@ -56,7 +53,7 @@ const CoffeeStore = (initialProps) => {
 
     const handleCreateCoffeeStores = async (coffeeStore) => {
       try {
-        const { id, name, address, locality, votes, imgUrl } = coffeeStore;
+        const { id, name, address, locality, imgUrl } = coffeeStore;
         const response = await fetch("/api/createCoffeeStores", {
           method: "POST",
           headers: {
@@ -65,14 +62,13 @@ const CoffeeStore = (initialProps) => {
           body: JSON.stringify({
             id,
             name,
-            address: address || '',
-            locality: locality || '',
-            votes: votes || 0,
+            address: address || "",
+            locality: locality || "",
+            vote: 1,
             imgUrl
           }),
         });
         const dbCoffeeStore = await response.json();
-        console.log('dbCoffeeStore', dbCoffeeStore)
       } catch(error) {
         console.error('Error creating coffee store', error)
       }
@@ -90,19 +86,50 @@ const CoffeeStore = (initialProps) => {
         } else {
           handleCreateCoffeeStores(initialProps.coffeeStore);
         }
-      }, [id, initialProps, initialProps.coffeeStore, coffeeStores]);
+      }, [id, coffeeStores, initialProps.coffeeStore]);
 
     const { name, address, locality, imgUrl } = coffeeStore;
 
     const [voteCount, setVoteCount] = useState(0);
 
-    const handleVoteButton = () => {
-      console.log("handle votes");
-      let count = voteCount + 1
-      setVoteCount(count);
+    const fetcher = (url) => fetch(url).then((res) => res.json());
+    const { data, error, isLoading } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+
+    useEffect(() => {
+      if (data && data.length > 0) {
+        setCoffeeStore(data[0]);
+        setVoteCount(data[0].vote);
+      }
+    }, [data]);
+
+    const handleVoteButton = async () => {
+       try {
+        const response = await fetch("/api/favoriteCoffeeStoreById", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id,
+          }),
+        });
+        const dbCoffeeStore = await response.json();
+
+        if (dbCoffeeStore && dbCoffeeStore.length > 0) {
+        let count = voteCount + 1;
+        setVoteCount(count);
+        }
+      } catch(error) {
+        console.error('Error updating vote', error)
+      }
+    };
+
+    if (error) {
+      return <div>Failed to load</div>
     }
-
-
+    if (isLoading) {
+      return <div>Loading...</div>
+    }
 
     return (
       <div className={styles.layout}>
@@ -134,7 +161,7 @@ const CoffeeStore = (initialProps) => {
                 width={600}
                 height={360}
                 alt="store image"
-                className={styles.storeImg}
+                className={ styles.storeImg }
                 as="image"
                 priority
               />

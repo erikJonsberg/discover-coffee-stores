@@ -29,8 +29,6 @@ export default function Home(props) {
 
   const { coffeeStores, latlong } = state;
 
-  console.log({latlong, locationErrorMsg});
-
   useEffect(() => {
     async function setFetchCoffeeStores() {
     if (latlong) {
@@ -39,15 +37,12 @@ export default function Home(props) {
           `/api/getCoffeeStoresByLocation?latLong=${latlong}&limit=30`
         );
         const coffeeStores = await response.json();
-
-        console.log({response});
         dispatch({
           type: ACTION_TYPES.SET_COFFEE_STORES,
           payload: {coffeeStores},
         });
         setCoffeeStoresError("");
       } catch (error) {
-        console.log({error});
         setCoffeeStoresError(error.message);
       }
     }
@@ -56,7 +51,6 @@ export default function Home(props) {
   }, [latlong, dispatch])
 
   const handleOnBannerButtonClick = () => {
-    console.log('button clicked');
     handleGeolocation();
   }
   return (

@@ -1,4 +1,8 @@
-import { table, getFieldObjects } from '@/lib/airtable.lib';
+import {
+  table,
+  getMinifiedRecords,
+  findRecordsByFilter,
+} from "@/lib/airtable.lib";
 
 
 
@@ -10,12 +14,9 @@ import { table, getFieldObjects } from '@/lib/airtable.lib';
 
         try {
             if (id) {
-        const findExistingRecords = await table.select({
-            filterByFormula: `id="${id}"`,
-          }).firstPage();
+        const records = await findRecordsByFilter(id);
 
-            if (findExistingRecords.length !== 0) {
-                const records = getFieldObjects(findExistingRecords);
+            if (records.length !== 0) {
                 res.json(records)
             } else {
             if (name) {
@@ -31,7 +32,7 @@ import { table, getFieldObjects } from '@/lib/airtable.lib';
                     }
                 }
             ]);
-            const records = getFieldObjects(createRecords);
+            const records = getMinifiedRecords(createRecords);
             res.json({records})
 
           } else {

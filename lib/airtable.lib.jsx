@@ -1,16 +1,25 @@
-export const Airtable = require("airtable");
-export const base = new Airtable({
+const Airtable = require("airtable");
+const base = new Airtable({
   apiKey: process.env.AIRTABLE_API_KEY,
 }).base(process.env.AIRTABLE_BASE_ID);
 
 export const table = base("coffee-stores");
 
-const getFieldObject = (record) => {
+const getMinifiedRecord = (record) => {
     return {
+      recordId: record.id,
       ...record.fields,
     };
 }
 
-export const getFieldObjects = (records) => {
-  return records.map((record) => getFieldObject(record));
+export const getMinifiedRecords = (records) => {
+  return records.map((record) => getMinifiedRecord(record));
   };
+
+  export const findRecordsByFilter = async (id) => {
+    const findCoffeeStoreRecords = await table.select({
+            filterByFormula: `id="${id}"`,
+          }).firstPage();
+
+          return getMinifiedRecords(findCoffeeStoreRecords);
+  }
