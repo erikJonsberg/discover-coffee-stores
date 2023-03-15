@@ -41,11 +41,10 @@ export async function getStaticProps(staticProps) {
 
 const CoffeeStore = (initialProps) => {
     const router = useRouter()
-    {router.isFallback && <div>Loading...</div>};
 
     const id = router.query.id;
 
-    const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+    const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore) || {};
 
     const {
       state: { coffeeStores },
@@ -53,7 +52,9 @@ const CoffeeStore = (initialProps) => {
 
     const handleCreateCoffeeStores = async (coffeeStore) => {
       try {
+
         const { id, name, address, locality, imgUrl } = coffeeStore;
+
         const response = await fetch("/api/createCoffeeStores", {
           method: "POST",
           headers: {
@@ -64,11 +65,14 @@ const CoffeeStore = (initialProps) => {
             name,
             address: address || "",
             locality: locality || "",
-            vote: 1,
+            vote: 0,
             imgUrl
           }),
         });
         const dbCoffeeStore = await response.json();
+        if (dbCoffeeStore && dbCoffeeStore.length > 0) {
+          setCoffeeStore(dbCoffeeStore[0]);
+        }
       } catch(error) {
         console.error('Error creating coffee store', error)
       }
@@ -86,14 +90,19 @@ const CoffeeStore = (initialProps) => {
         } else {
           handleCreateCoffeeStores(initialProps.coffeeStore);
         }
-      }, [id, coffeeStores, initialProps.coffeeStore]);
+      }, [id, initialProps.coffeeStore, coffeeStores]);
 
-    const { name, address, locality, imgUrl } = coffeeStore;
+    const {
+      name = "",
+      address = "",
+      locality = "",
+      imgUrl = "",
+    } =  coffeeStore ? coffeeStore : {};
 
     const [voteCount, setVoteCount] = useState(0);
 
     const fetcher = (url) => fetch(url).then((res) => res.json());
-    const { data, error, isLoading } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+    const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
 
     useEffect(() => {
       if (data && data.length > 0) {
@@ -101,6 +110,10 @@ const CoffeeStore = (initialProps) => {
         setVoteCount(data[0].vote);
       }
     }, [data]);
+
+    if (router.isFallback) {
+      return <div>Loading...</div>;
+    }
 
     const handleVoteButton = async () => {
        try {
@@ -125,10 +138,7 @@ const CoffeeStore = (initialProps) => {
     };
 
     if (error) {
-      return <div>Failed to load</div>
-    }
-    if (isLoading) {
-      return <div>Loading...</div>
+      return <div>Something went wrong retrieving coffee store page</div>;
     }
 
     return (
@@ -146,7 +156,7 @@ const CoffeeStore = (initialProps) => {
                     src="/static-assets/icons/back.svg"
                     width="28"
                     height="28"
-                    alt="icon"
+                    alt="back icon"
                   />
                   Back to home
                 </Link>
@@ -160,7 +170,7 @@ const CoffeeStore = (initialProps) => {
                 src={imgUrl || 'https://images.unsplash.com/photo-1493857671505-72967e2e2760?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=Mnw0MTQzMzh8MHwxfHNlYXJjaHw2fHxjb2ZmZWUlMjBzaG9wfGVufDB8MHx8fDE2NzcxNzQ2NjU&ixlib=rb-4.0.3&q=80&w=1080' }
                 width={600}
                 height={360}
-                alt="store image"
+                alt={name}
                 className={ styles.storeImg }
                 as="image"
                 priority
@@ -174,7 +184,7 @@ const CoffeeStore = (initialProps) => {
                 src="/static-assets/icons/places.svg"
                 width="24"
                 height="24"
-                alt="icon"
+                alt="places icon"
               />
               <p className={styles.text}>{address}</p>
             </div>}
@@ -183,7 +193,7 @@ const CoffeeStore = (initialProps) => {
                 src="/static-assets/icons/nearMe.svg"
                 width="24"
                 height="24"
-                alt="icon"
+                alt="near me icon"
               />
               <p className={styles.text}>{locality}</p>
             </div>}
@@ -192,7 +202,7 @@ const CoffeeStore = (initialProps) => {
                 src="/static-assets/icons/star.svg"
                 width="24"
                 height="24"
-                alt="icon"
+                alt="star icon"
               />
               <p className={styles.text}>{voteCount}</p>
             </div>
