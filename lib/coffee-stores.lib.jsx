@@ -10,15 +10,14 @@ const getUrlForCoffeeStores = (query, latlong, limit) => {
 }
 
 const getCoffeeStorePhotos = async () => {
-  const photos = await unsplash.search.getPhotos({ 
+  const photos = await unsplash.search.getPhotos({
     query: "coffee shop",
     page: 1,
     perPage: 30,
     orientation: "landscape",
   })
-  const unsplashResults = photos.response.results;
-  return unsplashResults.map(
-    (result) => result.urls['regular']
+  const unsplashResults = photos.response.results || [];
+  return unsplashResults.map((result) => result.urls['small']
   );
 }
 
@@ -27,7 +26,7 @@ const photos = await getCoffeeStorePhotos();
 const options = {
   method: "GET",
   headers: {
-    accept: "application/json",
+    Accept: "application/json",
     Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
   },
 };
@@ -46,7 +45,7 @@ return data.results.map((result, index) => {
     id: result.fsq_id,
     name: result.name,
     address: result.location.address,
-    locality: result.location.locality,
+    locality: result.location?.length > 0 ? locality : "",
     imgUrl: photos.length > 0 ? photos[index] : null,
   }
 })

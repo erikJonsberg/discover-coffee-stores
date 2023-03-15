@@ -6,7 +6,7 @@ import Image from "next/image";
 import { fetchCoffeeStores } from "@/lib/coffee-stores.lib";
 import styles from "@/styles/coffee-store.module.css";
 import { StoreContext } from "@/store/store.context";
-import { isEmpty } from "@/utils/utils";
+import { isEmpty, fetcher } from "@/utils/utils";
 import useSWR from "swr";
 
 export async function getStaticProps(staticProps) {
@@ -101,7 +101,6 @@ const CoffeeStore = (initialProps) => {
 
     const [voteCount, setVoteCount] = useState(0);
 
-    const fetcher = (url) => fetch(url).then((res) => res.json());
     const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
 
     useEffect(() => {
