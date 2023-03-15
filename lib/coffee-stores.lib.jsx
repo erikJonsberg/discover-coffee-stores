@@ -17,7 +17,7 @@ const getCoffeeStorePhotos = async () => {
     orientation: "landscape",
   })
   const unsplashResults = photos.response.results || [];
-  return unsplashResults.map((result) => result.urls['small']
+  return unsplashResults.map((result) => result.urls['large']
   );
 }
 
